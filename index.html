@@ -4,6 +4,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#E9B63B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="河內行程">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>河內・下龍灣・寧平 旅遊行程</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -128,6 +134,52 @@ footer{padding:28px 0 120px;color:var(--muted);font-size:13px}
 .ed .chk{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:6px}
 @media (max-width:560px){.ed .r4{grid-template-columns:1fr 1fr}.tl li{grid-template-columns:62px 1fr}.tl li::before{left:73px}.tl li::after{left:69px}.day-head{grid-template-columns:1fr}.dbadge{justify-self:start;display:flex;gap:8px;align-items:baseline}}
 @media print{.bar,.nav,.toast{display:none}}
+/* Weather card */
+.wx{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,var(--soft),var(--bg) 70%)}
+.wx-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.wx-ic svg{width:54px;height:54px;display:block}
+.wx-place{font-size:14px;color:var(--muted);font-weight:500}
+.wx-t{font-family:"Noto Serif TC",serif;font-size:32px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.wx-t small{font-family:"Noto Sans TC",sans-serif;font-size:16px;color:var(--muted);font-weight:500}
+.wx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.chip{font-size:13px;padding:3px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.chip.rain b{color:var(--rain)}
+.wx-hours{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;font-size:12px}
+.wx-hours div{display:flex;flex-direction:column;align-items:center;gap:1px}
+.wx-hours svg{width:26px;height:26px}
+.wx-hours b{font-size:14px;font-variant-numeric:tabular-nums}
+.wx-hours span{color:var(--muted)}
+.wx-hours .p{color:var(--rain)}
+.wx-wear{font-size:14px;margin:10px 0 0}
+.wx-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted)}
+@media (max-width:560px){.wx-chips{margin-left:0;width:100%}}
+/* Today + next stop */
+.day.today .dbadge{background:var(--ochre);color:var(--ochre-ink)}
+.today-tag{display:inline-block;margin-left:8px;font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--ochre);color:var(--ochre-ink);vertical-align:middle}
+.tl li.next::after{background:var(--ochre);border-color:var(--ochre)}
+.next-tag{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;color:var(--ochre-ink);background:var(--ochre);border-radius:999px;padding:1px 8px;vertical-align:middle}
+/* Phones */
+a.tel{color:var(--shutter);font-weight:700;text-decoration:underline}
+.sos-g{font-size:15px;margin:18px 0 0}
+.sos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:8px}
+.call{display:flex;align-items:flex-start;gap:12px;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg)}
+.call:hover{border-color:var(--shutter)}
+.call .ph{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--shutter);color:var(--bg)}
+.call .ph svg{width:18px;height:18px}
+.call .nm{display:block;font-size:14px;font-weight:500}
+.call .num{display:block;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--shutter)}
+.call small{display:block;font-size:13px;color:var(--muted)}
+.call.urgent{border-color:var(--danger)}
+.call.urgent .ph{background:var(--danger)}
+.call.urgent .num{color:var(--danger)}
+.btn.sos-btn{background:var(--danger);color:var(--bg);text-decoration:none}
+/* Currency */
+.fx{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-top:14px;max-width:560px}
+.fx label{font-size:13px;color:var(--muted)}
+.fx input{display:block;margin-top:4px;font:inherit;font-size:20px;font-weight:700;width:100%;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink)}
+.fx input:focus{border-color:var(--shutter);outline:none}
+.fx-eq{font-size:22px;font-weight:700;padding-bottom:10px}
+.fx-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -179,7 +231,19 @@ function load(id,fallback){
     return fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&headers=1&sheet='+encodeURIComponent(name),{cache:'no-store'})
       .then(function(r){if(!r.ok)throw new Error(name+' '+r.status);return r.text()})
       .then(function(s){return objects(parseCSV(s))});
-  })).then(function(all){var t={};TABS.forEach(function(n,i){t[n]=all[i]});return fromSheet(t,fallback)});
+  })).then(function(all){var t={};TABS.forEach(function(n,i){t[n]=all[i]});return fromSheet(t,fallback)})
+    .then(function(s){return phones(id).then(function(p){if(p.length)s.phones=p;return s})});
+}
+// Optional "電話" tab. A missing tab makes gviz return the first tab, so check the headers.
+function phones(id){
+  return fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&headers=1&sheet='+encodeURIComponent('電話'),{cache:'no-store'})
+    .then(function(r){return r.ok?r.text():''}).then(function(s){
+      var rows=objects(parseCSV(s));
+      if(!rows.length||!('電話' in rows[0])||!('名稱' in rows[0]))return [];
+      return rows.filter(function(r){return r['電話']}).map(function(r){
+        return {g:r['分類']||'其他',n:r['名稱'],p:r['電話'],d:r['說明']||'',u:/^(true|是|v|x|✓|✔)$/i.test(r['緊急']||'')};
+      });
+    }).catch(function(){return []});
 }
 return {parseCSV:parseCSV,objects:objects,fromSheet:fromSheet,load:load};
 })();
@@ -194,9 +258,173 @@ var SHEET_URL=SHEET_ID?'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/edit
 var CACHE='hanoi-trip-sheet-v1',status='';
 function hhmm(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
 try{var c=JSON.parse(localStorage.getItem(CACHE)||'null');if(c&&c.data&&c.data.days){state=c.data;status='顯示 '+hhmm(c.at)+' 讀到的行程，正在更新…'}}catch(e){}
+// ---- Live data: weather (Open-Meteo), TWD→VND rate, emergency phones ----
+var TZ='Asia/Bangkok';
+var LIVE='hanoi-trip-live-v1',live={wx:{},rate:null,rateAt:0};
+try{var lv=JSON.parse(localStorage.getItem(LIVE)||'null');if(lv&&lv.wx)live=lv}catch(e){}
+function saveLive(){try{localStorage.setItem(LIVE,JSON.stringify(live))}catch(e){}}
+
+var PLACES=[{k:'下龍',lat:20.9101,lon:107.1839},{k:'寧平',lat:20.2506,lon:105.9745},{k:'河內',lat:21.0285,lon:105.8542}];
+function placeOf(name){
+  var best=null,at=1e9;
+  PLACES.forEach(function(p){var i=(name||'').indexOf(p.k);if(i>=0&&i<at){at=i;best=p}});
+  return best;
+}
+function tripYear(){var m=/(20\d\d)/.exec(state.subtitle||'');return m?+m[1]:new Date().getFullYear()}
+function iso(md){var m=/^(\d{1,2})\/(\d{1,2})$/.exec(md||'');if(!m)return '';return tripYear()+'-'+('0'+m[1]).slice(-2)+'-'+('0'+m[2]).slice(-2)}
+function hanoiNow(){
+  var p={};new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'})
+    .formatToParts(new Date()).forEach(function(x){p[x.type]=x.value});
+  return {date:p.year+'-'+p.month+'-'+p.day,min:(+p.hour)*60+(+p.minute)};
+}
+function addDays(d,n){var t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)}
+function hhmmOf(t){return new Date(t).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false})}
+
+// WMO weather codes → label + icon kind
+function wmo(c){
+  if(c===0)return ['晴','sun'];
+  if(c===1)return ['大致晴朗','sun'];
+  if(c===2)return ['晴時多雲','part'];
+  if(c===3)return ['陰天','cloud'];
+  if(c===45||c===48)return ['有霧','fog'];
+  if(c>=51&&c<=57)return ['毛毛雨','rain'];
+  if(c===61||c===80)return [c===80?'短暫陣雨':'小雨','rain'];
+  if(c===63||c===81)return [c===81?'陣雨':'中雨','rain'];
+  if(c===65||c===66||c===67||c===82)return ['大雨','heavy'];
+  if(c>=71&&c<=77||c===85||c===86)return ['降雪','cloud'];
+  if(c>=95)return ['雷雨','storm'];
+  return ['—','cloud'];
+}
+var SVG='<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">';
+var SUN='<circle cx="24" cy="24" r="8" fill="var(--ochre)"/><g stroke="var(--ochre)" stroke-width="3"><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M11.3 36.7l3.5-3.5M33.2 14.8l3.5-3.5"/></g>';
+var CLOUD=function(y,fill){return '<path d="M14 '+(34+y)+'h21a7 7 0 0 0 0-14 10 10 0 0 0-19-2A8 8 0 0 0 14 '+(34+y)+'z" fill="'+(fill||'var(--soft)')+'" stroke="var(--muted)" stroke-width="2.5"/>'};
+var DROPS=function(n){var s='<g stroke="var(--rain)" stroke-width="3">';for(var i=0;i<n;i++)s+='<path d="M'+(17+i*7)+' 38l-2 6"/>';return s+'</g>'};
+function icon(kind){
+  var b={
+    sun:SUN,
+    part:'<g transform="translate(-6 -6) scale(.8)">'+SUN+'</g>'+CLOUD(4),
+    cloud:CLOUD(0,'var(--line)'),
+    fog:CLOUD(-6)+'<g stroke="var(--muted)" stroke-width="3"><path d="M10 38h28M14 44h20"/></g>',
+    rain:CLOUD(-4)+DROPS(3),
+    heavy:CLOUD(-4,'var(--line)')+DROPS(4),
+    storm:CLOUD(-4,'var(--line)')+'<path d="M25 30l-5 8h6l-4 8" stroke="var(--ochre)" stroke-width="3"/>'
+  }[kind]||CLOUD(0);
+  return SVG+b+'</svg>';
+}
+
+function loadWeather(){
+  var today=hanoiNow().date,want={};
+  state.days.forEach(function(d){var p=placeOf(d.weather&&d.weather.place),i=iso(d.date);if(p&&i)(want[p.k]=want[p.k]||{p:p,dates:[]}).dates.push(i)});
+  return Promise.all(Object.keys(want).map(function(k){
+    var ds=want[k].dates.sort(),p=want[k].p;
+    // Forecast reaches ~16 days ahead; skip days outside that window
+    var start=ds[0]<addDays(today,-60)?addDays(today,-60):ds[0],end=ds[ds.length-1]>addDays(today,15)?addDays(today,15):ds[ds.length-1];
+    if(start>end)return null;
+    var u='https://api.open-meteo.com/v1/forecast?latitude='+p.lat+'&longitude='+p.lon+
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,wind_speed_10m_max,sunset'+
+      '&hourly=temperature_2m,precipitation_probability,weather_code&timezone='+encodeURIComponent(TZ)+'&start_date='+start+'&end_date='+end;
+    return fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+      var daily={},hourly={},D=j.daily,H=j.hourly;
+      D.time.forEach(function(t,i){daily[t]={code:D.weather_code[i],hi:Math.round(D.temperature_2m_max[i]),lo:Math.round(D.temperature_2m_min[i]),
+        pop:D.precipitation_probability_max[i],uv:D.uv_index_max[i],wind:Math.round(D.wind_speed_10m_max[i]),sunset:(D.sunset[i]||'').slice(11,16)}});
+      H.time.forEach(function(t,i){var h=+t.slice(11,13);if(h>=6&&h<=21&&h%3===0)(hourly[t.slice(0,10)]=hourly[t.slice(0,10)]||[]).push({h:t.slice(11,16),t:Math.round(H.temperature_2m[i]),p:H.precipitation_probability[i],c:H.weather_code[i]})});
+      live.wx[k]={daily:daily,hourly:hourly,at:Date.now()};
+    }).catch(function(){});
+  })).then(saveLive);
+}
+function loadRate(){
+  return fetch('https://open.er-api.com/v6/latest/TWD').then(function(r){return r.json()}).then(function(j){
+    if(j&&j.rates&&j.rates.VND){live.rate=j.rates.VND;live.rateAt=Date.now();saveLive()}
+  }).catch(function(){});
+}
+function loadLive(){return Promise.all([loadWeather(),loadRate()]).then(function(){var y=window.scrollY;render();window.scrollTo(0,y)})}
+
+function weatherCard(d){
+  var w=d.weather||{},p=placeOf(w.place),k=p&&live.wx[p.k],x=k&&k.daily[iso(d.date)],h='';
+  if(x){
+    var L=wmo(x.code),hrs=(k.hourly[iso(d.date)]||[]);
+    h+='<div class="wx"><div class="wx-top"><div class="wx-ic">'+icon(L[1])+'</div><div class="wx-main"><div class="wx-place">'+esc(w.place)+' · '+L[0]+'</div>';
+    h+='<div class="wx-t">'+x.hi+'°<small> / '+x.lo+'°C</small></div></div><div class="wx-chips">';
+    h+='<span class="chip rain">降雨 <b>'+(x.pop==null?'—':x.pop+'%')+'</b></span>';
+    if(x.uv!=null){var uv=Math.round(x.uv);h+='<span class="chip">UV '+uv+(uv>=8?' 很強':uv>=6?' 強':'')+'</span>'}
+    h+='<span class="chip">風 '+x.wind+' km/h</span>';
+    if(x.sunset)h+='<span class="chip">日落 '+x.sunset+'</span>';
+    h+='</div></div>';
+    if(hrs.length)h+='<div class="wx-hours">'+hrs.map(function(r){return '<div><span>'+r.h.slice(0,2)+'時</span>'+icon(wmo(r.c)[1])+'<b>'+r.t+'°</b><span class="p">'+(r.p==null?'':r.p+'%')+'</span></div>'}).join('')+'</div>';
+    if(w.wear)h+='<p class="wx-wear">👕 '+esc(w.wear)+'</p>';
+    h+='<div class="wx-foot"><span>即時預報 · Open-Meteo</span><span>更新 '+hhmmOf(k.at)+'</span></div></div>';
+  }else if(w.hi||w.lo||w.wear){
+    var rain=Math.max(0,Math.min(100,parseInt(w.rain,10)||0));
+    h+='<div class="wx static"><div class="wx-top"><div class="wx-main"><div class="wx-place">'+esc(w.place)+'</div>';
+    if(w.hi||w.lo)h+='<div class="wx-t">'+esc(w.hi)+'°<small> / '+esc(w.lo)+'°C</small></div>';
+    h+='</div><div class="wx-chips">'+(w.rain!==undefined&&w.rain!==''?'<span class="chip rain">降雨 <b>'+rain+'%</b></span>':'')+'</div></div>';
+    if(w.wear)h+='<p class="wx-wear">👕 '+esc(w.wear)+'</p>';
+    h+='<div class="wx-foot"><span>試算表預估；出發前 16 天內會自動換成即時預報</span></div></div>';
+  }
+  return h;
+}
+
+// Phones: tap to call. Local numbers starting with 0 are Vietnamese.
+function tel(n){var s=String(n).replace(/[^\d+]/g,'');return s.charAt(0)==='0'?'+84'+s.slice(1):s}
+function linkPhones(html){
+  return html.replace(/\+?\d[\d \-]{6,}\d/g,function(m){var n=m.replace(/\D/g,'');return n.length>=8&&n.length<=13?'<a class="tel" href="tel:'+tel(m)+'">'+m+'</a>':m});
+}
+var PHONES=[
+  {g:'越南當地',n:'報警',p:'113',d:'搶劫、竊盜、糾紛',u:1},
+  {g:'越南當地',n:'救護車',p:'115',d:'受傷、急病',u:1},
+  {g:'越南當地',n:'消防',p:'114',d:'火災、受困',u:1},
+  {g:'台灣政府協助',n:'駐越南台北經濟文化辦事處 急難專線',p:'+84 913 219 986',d:'車禍、搶劫、生命安危等急難；一般事務請勿撥打',u:1},
+  {g:'台灣政府協助',n:'駐越南台北經濟文化辦事處 辦公室',p:'+84 24 3833 5501',d:'護照遺失、補發；週一至五 08:30–12:00、13:30–17:30'},
+  {g:'台灣政府協助',n:'外交部緊急聯絡中心（海外付費）',p:'+886 800 085 095',d:'找不到辦事處時撥打'},
+  {g:'訂位與店家',n:'Chả Cá Thăng Long 一店（2D Đường Thành）',p:'024 3828 6007',d:'10:00–22:00'},
+  {g:'訂位與店家',n:'Chả Cá Thăng Long 二店（6B Đường Thành）',p:'024 3824 5115',d:'10:00–22:00'},
+  {g:'訂位與店家',n:'Chả Cá Thăng Long 客服',p:'+84 931 111 999',d:'找不到店時可問'}
+];
+var PHONE_IC='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>';
+function sos(s){
+  var list=(s.phones&&s.phones.length)?s.phones:PHONES,groups=[],gi={};
+  list.forEach(function(x){if(!(x.g in gi)){gi[x.g]=groups.length;groups.push({g:x.g,items:[]})}groups[gi[x.g]].items.push(x)});
+  var h='<section class="block" id="sos"><div class="wrap"><h2>緊急電話</h2><p class="progress">點一下就能直接撥打。越南當地的 113、114、115 是免費電話。</p>';
+  groups.forEach(function(g){
+    h+='<h3 class="sos-g">'+esc(g.g)+'</h3><div class="sos">';
+    g.items.forEach(function(x){h+='<a class="call'+(x.u?' urgent':'')+'" href="tel:'+esc(tel(x.p))+'"><span class="ph">'+PHONE_IC+'</span><span><span class="nm">'+esc(x.n)+'</span><span class="num">'+esc(x.p)+'</span>'+(x.d?'<small>'+esc(x.d)+'</small>':'')+'</span></a>'});
+    h+='</div>';
+  });
+  return h+'</div></section>';
+}
+
+// Currency converter
+function rate(){return live.rate||800}
+function money(){
+  var h='<section class="block" id="fx"><div class="wrap"><h2>匯率換算</h2>';
+  h+='<p class="progress">1 台幣 ≈ '+Math.round(rate()).toLocaleString()+' 越南盾'+(live.rate?'（'+new Date(live.rateAt).toLocaleDateString('zh-TW')+' 即時匯率）':'（約略匯率，連上網路後更新）')+'</p>';
+  h+='<div class="fx"><label>越南盾 VND<input inputmode="decimal" data-fx="vnd" placeholder="例如 50000 或 50k"></label><span class="fx-eq">=</span><label>台幣 TWD<input inputmode="decimal" data-fx="twd" placeholder="0"></label></div>';
+  h+='<div class="fx-quick">'+[10000,50000,100000,200000,500000].map(function(v){return '<button class="mini" data-fxq="'+v+'">'+(v/1000)+'k</button>'}).join('')+'</div>';
+  return h+'</div></section>';
+}
+function num(v){v=String(v).trim().toLowerCase().replace(/,/g,'');var k=/k$/.test(v);v=parseFloat(v);return isNaN(v)?null:(k?v*1000:v)}
+document.addEventListener('input',function(e){
+  var el=e.target,side=el.dataset&&el.dataset.fx;if(!side)return;
+  var other=document.querySelector('[data-fx="'+(side==='vnd'?'twd':'vnd')+'"]'),v=num(el.value);
+  other.value=v==null?'':(side==='vnd'?(v/rate()).toFixed(v/rate()<100?1:0):Math.round(v*rate()).toLocaleString());
+});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-fxq]');if(!b)return;
+  var a=document.querySelector('[data-fx="vnd"]');a.value=(+b.dataset.fxq).toLocaleString();a.dispatchEvent(new Event('input',{bubbles:true}));
+});
+
+// Today + next stop (Hanoi time)
+function todayId(){var t=hanoiNow().date,id='';state.days.forEach(function(d){if(iso(d.date)===t)id=d.id});return id}
+function nextIndex(d){
+  if(d.id!==todayId())return -1;
+  var now=hanoiNow().min,idx=-1;
+  (d.items||[]).some(function(it,j){var m=/(\d{1,2}):(\d{2})/.exec(it.t||'');if(m&&(+m[1])*60+(+m[2])>=now){idx=j;return true}});
+  return idx;
+}
+
 function loadSheet(){
-  if(!SHEET_ID)return;
-  TripSheet.load(SHEET_ID,DATA).then(function(s){
+  if(!SHEET_ID)return Promise.resolve();
+  return TripSheet.load(SHEET_ID,DATA).then(function(s){
     state=s;status='';
     try{localStorage.setItem(CACHE,JSON.stringify({at:Date.now(),data:s}))}catch(e){}
     render();
@@ -217,19 +445,16 @@ function ta(path,val,ph){return '<textarea data-path="'+path+'" rows="2" placeho
 
 function viewDay(d){
   var w=d.weather||{},rain=Math.max(0,Math.min(100,parseInt(w.rain,10)||0));
-  var h='<section class="day" id="'+esc(d.id)+'"><div class="day-head"><div class="dbadge"><span class="n">'+esc(d.date)+'</span><span class="w">週'+esc(d.dow)+'</span></div><div>';
-  h+='<h2>'+esc(d.title)+'</h2>'+(d.summary?'<p class="sum">'+esc(d.summary)+'</p>':'');
-  h+='<div class="facts">';
-  if(w.hi||w.lo)h+='<span class="fact">'+esc(w.place)+'<span class="temp">'+esc(w.hi)+'° / '+esc(w.lo)+'°C</span></span>';
-  if(w.rain!==undefined&&w.rain!=='')h+='<span class="fact">降雨 '+rain+'%<span class="rainbar" aria-hidden="true"><i style="width:'+rain+'%"></i></span></span>';
-  if(w.wear)h+='<span class="fact wear">'+esc(w.wear)+'</span>';
-  h+='</div>';
+  var today=d.id===todayId(),nx=nextIndex(d);
+  var h='<section class="day'+(today?' today':'')+'" id="'+esc(d.id)+'"><div class="day-head"><div class="dbadge"><span class="n">'+esc(d.date)+'</span><span class="w">週'+esc(d.dow)+'</span></div><div>';
+  h+='<h2>'+esc(d.title)+(today?'<span class="today-tag">今天</span>':'')+'</h2>'+(d.summary?'<p class="sum">'+esc(d.summary)+'</p>':'');
+  h+=weatherCard(d);
   if(d.stay)h+='<div class="maps" style="margin-top:10px"><span class="fact" style="font-size:14px">住宿</span>'+(d.stayQ?mapLink(d.stay,d.stayQ):'<span>'+esc(d.stay)+'</span>')+'</div>';
   h+='</div></div><ol class="tl">';
-  (d.items||[]).forEach(function(it){
-    h+='<li><div class="t">'+esc(it.t)+'</div><div class="body"><h3>'+esc(it.title)+'</h3>';
+  (d.items||[]).forEach(function(it,j){
+    h+='<li'+(j===nx?' class="next"':'')+'><div class="t">'+esc(it.t)+'</div><div class="body"><h3>'+esc(it.title)+(j===nx?'<span class="next-tag">下一項</span>':'')+'</h3>';
     if(it.maps&&it.maps.length)h+='<div class="maps">'+it.maps.map(function(m){return mapLink(m.l,m.q)}).join('')+'</div>';
-    if(it.note)h+='<p class="note">'+esc(it.note)+'</p>';
+    if(it.note)h+='<p class="note">'+linkPhones(esc(it.note))+'</p>';
     h+='</div></li>';
   });
   return h+'</ol></section>';
@@ -282,14 +507,14 @@ function render(){
   if(editing)h+='<label>標題</label>'+inp('title',s.title)+'<label>日期</label>'+inp('subtitle',s.subtitle)+'<label>班機與時差</label>'+ta('flights',s.flights);
   else h+='<h1>'+esc(s.title)+'</h1><p class="sub">'+esc(s.subtitle)+'</p><p class="flights">'+esc(s.flights)+'</p>';
   h+='</div><div class="shutters" aria-hidden="true"><span class="shutter"></span><span class="shutter"></span></div></div></header>';
-  h+='<nav class="nav" aria-label="日期"><div class="wrap">'+s.days.map(function(d){return '<a href="#'+esc(d.id)+'"><b>'+esc(d.date)+'</b> '+esc(d.dow)+'</a>'}).join('')+'<a href="#prep">準備清單</a><a href="#tips">小提醒</a></div></nav>';
+  h+='<nav class="nav" aria-label="日期"><div class="wrap">'+s.days.map(function(d){return '<a href="#'+esc(d.id)+'"><b>'+esc(d.date)+'</b> '+esc(d.dow)+'</a>'}).join('')+'<a href="#sos">緊急電話</a><a href="#fx">匯率</a><a href="#prep">準備清單</a><a href="#tips">小提醒</a></div></nav>';
   h+='<main><div class="wrap">';
   if(status)h+='<p class="notice">'+esc(status)+'</p>';
   h+=s.days.map(function(d,i){return editing?editDay(d,i):viewDay(d)}).join('');
   if(editing)h+='<div class="acts" style="margin-top:14px"><button class="mini" data-act="addday" data-path="days">新增一天</button></div>';
-  h+='</div>'+packing(s,editing)+tips(s,editing)+'</main>';
-  h+='<footer><div class="wrap">行程資料來自 Google 試算表，改完重新整理這頁就會更新；準備清單也在試算表勾選。天氣為 2026/10/27 查詢的預報，出發前一天建議再看一次。地圖連結會開啟 Google Maps 搜尋。</div></footer>';
-  h+='<div class="bar">'+(SHEET_URL?'<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(SHEET_URL)+'">編輯行程（試算表）</a>':'')+'</div><div class="toast" role="status" aria-live="polite"></div>';
+  h+='</div>'+sos(s)+money()+packing(s,editing)+tips(s,editing)+'</main>';
+  h+='<footer><div class="wrap">行程資料來自 Google 試算表，改完重新整理這頁就會更新；準備清單也在試算表勾選。天氣在出發前 16 天內會自動換成 Open-Meteo 即時預報，匯率來自 open.er-api.com，沒網路時顯示上次讀到的資料。地圖連結會開啟 Google Maps 搜尋。</div></footer>';
+  h+='<div class="bar"><a class="btn sos-btn" href="#sos">☎ 緊急</a>'+(SHEET_URL?'<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(SHEET_URL)+'">編輯行程（試算表）</a>':'')+'</div><div class="toast" role="status" aria-live="polite"></div>';
   document.getElementById('root').innerHTML=h;
 }
 var toastT;
@@ -360,10 +585,13 @@ document.addEventListener('change',function(e){
   if(pr){var all=0,d=0;state.packing.forEach(function(g){g.items.forEach(function(x){all++;if(x.done)d++})});pr.textContent='已準備 '+d+' / '+all}
   clearTimeout(tickTimer);tickTimer=setTimeout(function(){persist(JSON.parse(JSON.stringify(state)))},2500);
 });
-render();loadSheet();
+render();loadSheet().then(loadLive);
 var sy=null;try{sy=sessionStorage.getItem('trip-scroll');sessionStorage.removeItem('trip-scroll')}catch(e){}
 if(sy){window.scrollTo(0,+sy)}
 else if(location.hash){var t=document.getElementById(location.hash.slice(1));if(t)t.scrollIntoView()}
+else{var td=document.querySelector('.day.today');if(td)td.scrollIntoView()}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&!editing){var y=window.scrollY;render();window.scrollTo(0,y)}});
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(function(){});
 })();
 </script>
 </body>
