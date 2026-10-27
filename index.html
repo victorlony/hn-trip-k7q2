@@ -189,7 +189,7 @@ return {parseCSV:parseCSV,objects:objects,fromSheet:fromSheet,load:load};
 var DATA=JSON.parse(document.getElementById('trip-data').textContent);
 var LS='hanoi-trip-local-v1';
 var state=JSON.parse(JSON.stringify(DATA));
-var SHEET_ID='';
+var SHEET_ID='1iplKftKuIunkN6rGhfapRGIX3zFFtqDZRD-YfH6eHeU';
 var SHEET_URL=SHEET_ID?'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/edit':'';
 var CACHE='hanoi-trip-sheet-v1',status='';
 function hhmm(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
