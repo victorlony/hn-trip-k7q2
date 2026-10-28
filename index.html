@@ -480,19 +480,24 @@ function editDay(d,i){
   h+='<div class="acts"><button class="mini" data-act="additem" data-path="'+p+'items">新增行程</button><button class="mini del" data-act="del" data-path="days.'+i+'">刪除這一天</button></div>';
   return h+'</section>';
 }
+// Checklist ticks are per phone, keyed by item text; the sheet's 已準備 column is the default
+var TICKS='hanoi-trip-ticks-v1',ticks={};
+try{ticks=JSON.parse(localStorage.getItem(TICKS)||'{}')||{}}catch(e){}
+function ticked(x){return x.text in ticks?ticks[x.text]:!!x.done}
+function prepCount(s){var all=0,done=0;s.packing.forEach(function(g){g.items.forEach(function(x){all++;if(ticked(x))done++})});return '已準備 '+done+' / '+all+'（勾選只記在這支手機）'}
 function packing(s,ed){
-  var all=0,done=0;s.packing.forEach(function(g){g.items.forEach(function(x){all++;if(x.done)done++})});
-  var h='<section class="block'+(ed?' ed':'')+'" id="prep"><div class="wrap"><h2>出發前準備</h2><p class="progress">已準備 '+done+' / '+all+'</p><div class="groups">';
+  var h='<section class="block'+(ed?' ed':'')+'" id="prep"><div class="wrap"><h2>出發前準備</h2><p class="progress">'+prepCount(s)+'</p><div class="groups">';
   s.packing.forEach(function(g,gi){
     h+='<div class="group">'+(ed?inp('packing.'+gi+'.group',g.group):'<h3>'+esc(g.group)+'</h3>');
     g.items.forEach(function(x,xi){
       var path='packing.'+gi+'.items.'+xi;
       if(ed)h+='<div class="chk"><input type="checkbox" data-check="'+path+'"'+(x.done?' checked':'')+' aria-label="已準備">'+inp(path+'.text',x.text)+'<button class="mini del" data-act="del" data-path="'+path+'">刪除</button></div>';
-      else h+='<label class="check'+(x.done?' done':'')+'"><input type="checkbox" disabled data-check="'+path+'"'+(x.done?' checked':'')+'><span>'+esc(x.text)+'</span></label>';
+      else h+='<label class="check'+(ticked(x)?' done':'')+'"><input type="checkbox" data-check="'+path+'"'+(ticked(x)?' checked':'')+'><span>'+esc(x.text)+'</span></label>';
     });
     if(ed)h+='<div class="acts"><button class="mini" data-act="addcheck" data-path="packing.'+gi+'.items">新增項目</button></div>';
     h+='</div>';
   });
+  if(!ed&&Object.keys(ticks).length)h+='<div class="acts"><button class="mini" data-resetticks>清除我的勾選</button></div>';
   return h+'</div></div></section>';
 }
 function tips(s,ed){
@@ -513,7 +518,7 @@ function render(){
   h+=s.days.map(function(d,i){return editing?editDay(d,i):viewDay(d)}).join('');
   if(editing)h+='<div class="acts" style="margin-top:14px"><button class="mini" data-act="addday" data-path="days">新增一天</button></div>';
   h+='</div>'+sos(s)+money()+packing(s,editing)+tips(s,editing)+'</main>';
-  h+='<footer><div class="wrap">行程資料來自 Google 試算表，改完重新整理這頁就會更新；準備清單也在試算表勾選。天氣在出發前 16 天內會自動換成 Open-Meteo 即時預報，匯率來自 open.er-api.com，沒網路時顯示上次讀到的資料。地圖連結會開啟 Google Maps 搜尋。</div></footer>';
+  h+='<footer><div class="wrap">行程資料來自 Google 試算表，改完重新整理這頁就會更新；準備清單的勾選記在各自的手機裡。天氣在出發前 16 天內會自動換成 Open-Meteo 即時預報，匯率來自 open.er-api.com，沒網路時顯示上次讀到的資料。地圖連結會開啟 Google Maps 搜尋。</div></footer>';
   h+='<div class="bar"><a class="btn sos-btn" href="#sos">☎ 緊急</a>'+(SHEET_URL?'<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(SHEET_URL)+'">編輯行程（試算表）</a>':'')+'</div><div class="toast" role="status" aria-live="polite"></div>';
   document.getElementById('root').innerHTML=h;
 }
@@ -578,12 +583,17 @@ document.addEventListener('input',function(e){
 });
 document.addEventListener('change',function(e){
   var el=e.target;if(!el.dataset.check)return;
-  var obj=getAt(editing?draft:state,el.dataset.check);obj.done=el.checked;
-  if(editing)return;
+  var obj=getAt(editing?draft:state,el.dataset.check);
+  if(editing){obj.done=el.checked;return}
+  ticks[obj.text]=el.checked;
+  try{localStorage.setItem(TICKS,JSON.stringify(ticks))}catch(e){}
   var lab=el.closest('.check');if(lab)lab.classList.toggle('done',el.checked);
-  var pr=document.querySelector('.progress');
-  if(pr){var all=0,d=0;state.packing.forEach(function(g){g.items.forEach(function(x){all++;if(x.done)d++})});pr.textContent='已準備 '+d+' / '+all}
-  clearTimeout(tickTimer);tickTimer=setTimeout(function(){persist(JSON.parse(JSON.stringify(state)))},2500);
+  var pr=document.querySelector('#prep .progress');if(pr)pr.textContent=prepCount(state);
+});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('[data-resetticks]')||!confirm('清除這支手機上的所有勾選？'))return;
+  ticks={};try{localStorage.removeItem(TICKS)}catch(e){}
+  var y=window.scrollY;render();window.scrollTo(0,y);
 });
 render();loadSheet().then(loadLive);
 var sy=null;try{sy=sessionStorage.getItem('trip-scroll');sessionStorage.removeItem('trip-scroll')}catch(e){}
