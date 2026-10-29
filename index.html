@@ -134,6 +134,21 @@ footer{padding:28px 0 120px;color:var(--muted);font-size:13px}
 .ed .chk{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:6px}
 @media (max-width:560px){.ed .r4{grid-template-columns:1fr 1fr}.tl li{grid-template-columns:62px 1fr}.tl li::before{left:73px}.tl li::after{left:69px}.day-head{grid-template-columns:1fr}.dbadge{justify-self:start;display:flex;gap:8px;align-items:baseline}}
 @media print{.bar,.nav,.toast{display:none}}
+/* Flights */
+.fl{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--bg)}
+.fl-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fl-no{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:900}
+.fl-route{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:8px;font-variant-numeric:tabular-nums}
+.fl-route b{display:block;font-size:22px}
+.fl-route small{color:var(--muted);font-size:13px}
+.fl-route .line{border-top:2px dashed var(--line);position:relative}
+.fl-route .line::after{content:"✈";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--bg);padding:0 4px}
+.fl-note{margin:10px 0 0;padding:8px 12px;border-radius:10px;background:var(--soft);font-weight:700;color:var(--danger)}
+.fl-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fl-links a{font-size:14px;padding:5px 12px;border-radius:999px;border:1px solid var(--shutter);color:var(--shutter);text-decoration:none;font-weight:500}
+.fl-links a:hover{background:var(--shutter);color:var(--bg)}
+.fl-foot{font-size:12px;color:var(--muted);margin:8px 0 0}
+
 /* Weather card */
 .wx{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,var(--soft),var(--bg) 70%)}
 .wx-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -222,7 +237,7 @@ function fromSheet(t,fallback){
     if(!(g in gi)){gi[g]=groups.length;groups.push({group:g,items:[]})}
     groups[gi[g]].items.push({text:r['項目'],done:/^(true|是|v|x|✓|✔)$/i.test(r['已準備'])});
   });
-  return {title:info['標題']||fallback.title,subtitle:info['日期']||'',flights:info['班機與時差']||'',updated:Date.now(),
+  return {title:info['標題']||fallback.title,subtitle:info['日期']||'',flights:info['班機與時差']||'',flightNote:info['航班狀態']||'',updated:Date.now(),
     days:days,packing:groups,tips:t['小提醒'].map(function(r){return r['內容']}).filter(Boolean)};
 }
 var TABS=['基本資料','每天','行程','準備清單','小提醒'];
@@ -443,11 +458,31 @@ function mapLink(l,q){return q?'<a class="map" target="_blank" rel="noopener" hr
 function inp(path,val,ph,cls){return '<input data-path="'+path+'" value="'+esc(val)+'" placeholder="'+esc(ph||'')+'"'+(cls?' class="'+cls+'"':'')+'>'}
 function ta(path,val,ph){return '<textarea data-path="'+path+'" rows="2" placeholder="'+esc(ph||'')+'">'+esc(val)+'</textarea>'}
 
+// Flights: parsed from the sheet's 班機與時差 text, e.g. "去程 CI791 10/29 08:15 桃園 → 10:35 河內"
+function flightsOf(s){
+  var re=/(去程|回程)?\s*([A-Z0-9]{2})\s?(\d{1,4})\s+(\d{1,2}\/\d{1,2})\s+(\d{1,2}:\d{2})\s*([^\s→｜|]+)\s*→\s*(\d{1,2}:\d{2})\s*([^\s｜|]+)/g,m,out=[];
+  while((m=re.exec(s.flights||'')))out.push({leg:m[1]||'',no:m[2]+m[3],date:m[4],dep:m[5],from:m[6],arr:m[7],to:m[8]});
+  return out;
+}
+function flightCard(d){
+  var fs=flightsOf(state).filter(function(f){return f.date===d.date});
+  return fs.map(function(f){
+    var q=encodeURIComponent(f.no);
+    var h='<div class="fl"><div class="fl-top"><span class="fl-no">'+esc(f.no)+'</span><span class="chip">'+esc(f.leg||'班機')+' '+esc(f.date)+'</span></div>';
+    h+='<div class="fl-route"><div><b>'+esc(f.dep)+'</b><small>'+esc(f.from)+'</small></div><div class="line" aria-hidden="true"></div><div style="text-align:right"><b>'+esc(f.arr)+'</b><small>'+esc(f.to)+'</small></div></div>';
+    if(state.flightNote)h+='<p class="fl-note">'+esc(state.flightNote)+'</p>';
+    h+='<div class="fl-links"><a href="https://www.flightaware.com/live/flight/'+q+'" target="_blank" rel="noopener">FlightAware 即時動態</a>'
+      +'<a href="https://www.flightradar24.com/data/flights/'+q.toLowerCase()+'" target="_blank" rel="noopener">Flightradar24 地圖</a>'
+      +'<a href="https://www.google.com/search?q='+q+'+flight+status" target="_blank" rel="noopener">Google 航班狀態</a></div>';
+    return h+'<p class="fl-foot">表定時間（當地時間）。實際起降、延誤、登機門請點上面的連結看即時資料。</p></div>';
+  }).join('');
+}
 function viewDay(d){
   var w=d.weather||{},rain=Math.max(0,Math.min(100,parseInt(w.rain,10)||0));
   var today=d.id===todayId(),nx=nextIndex(d);
   var h='<section class="day'+(today?' today':'')+'" id="'+esc(d.id)+'"><div class="day-head"><div class="dbadge"><span class="n">'+esc(d.date)+'</span><span class="w">週'+esc(d.dow)+'</span></div><div>';
   h+='<h2>'+esc(d.title)+(today?'<span class="today-tag">今天</span>':'')+'</h2>'+(d.summary?'<p class="sum">'+esc(d.summary)+'</p>':'');
+  h+=flightCard(d);
   h+=weatherCard(d);
   if(d.stay)h+='<div class="maps" style="margin-top:10px"><span class="fact" style="font-size:14px">住宿</span>'+(d.stayQ?mapLink(d.stay,d.stayQ):'<span>'+esc(d.stay)+'</span>')+'</div>';
   h+='</div></div><ol class="tl">';
