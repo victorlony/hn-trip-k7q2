@@ -144,6 +144,11 @@ footer{padding:28px 0 120px;color:var(--muted);font-size:13px}
 .fl-route .line{border-top:2px dashed var(--line);position:relative}
 .fl-route .line::after{content:"✈";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--bg);padding:0 4px}
 .fl-note{margin:10px 0 0;padding:8px 12px;border-radius:10px;background:var(--soft);font-weight:700;color:var(--danger)}
+.fl-live{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-variant-numeric:tabular-nums}
+.fl-live b{font-size:18px}
+.fl-live s{color:var(--muted)}
+.fl-st{font-weight:700;padding:2px 10px;border-radius:999px;background:var(--shutter);color:var(--bg)}
+.fl-st.bad{background:var(--danger)}
 .fl-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .fl-links a{font-size:14px;padding:5px 12px;border-radius:999px;border:1px solid var(--shutter);color:var(--shutter);text-decoration:none;font-weight:500}
 .fl-links a:hover{background:var(--shutter);color:var(--bg)}
@@ -352,7 +357,9 @@ function loadRate(){
     if(j&&j.rates&&j.rates.VND){live.rate=j.rates.VND;live.rateAt=Date.now();saveLive()}
   }).catch(function(){});
 }
-function loadLive(){return Promise.all([loadWeather(),loadRate()]).then(function(){var y=window.scrollY;render();window.scrollTo(0,y)})}
+function loadFlights(){return fetch('flight.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j){live.fl=j;try{localStorage.setItem(LIVE,JSON.stringify(live))}catch(e){}}}).catch(function(){})}
+setInterval(function(){if(!document.hidden&&!editing)loadFlights().then(function(){var y=window.scrollY;render();window.scrollTo(0,y)})},180000);
+function loadLive(){return Promise.all([loadWeather(),loadRate(),loadFlights()]).then(function(){var y=window.scrollY;render();window.scrollTo(0,y)})}
 
 function weatherCard(d){
   var w=d.weather||{},p=placeOf(w.place),k=p&&live.wx[p.k],x=k&&k.daily[iso(d.date)],h='';
@@ -472,10 +479,16 @@ function flightCard(d){
     h+='<div class="fl-route"><div><b>'+esc(f.dep)+'</b><small>'+esc(f.from)+'</small></div><div class="line" aria-hidden="true"></div><div style="text-align:right"><b>'+esc(f.arr)+'</b><small>'+esc(f.to)+'</small></div></div>';
     var nt=state.flightNote||'',named=flightsOf(state).some(function(g){return nt.indexOf(g.no)>=0});
     if(nt&&(!named||nt.indexOf(f.no)>=0))h+='<p class="fl-note">'+esc(state.flightNote)+'</p>';
-    h+='<div class="fl-links"><a href="https://www.flightaware.com/live/flight/'+q+'" target="_blank" rel="noopener">FlightAware 即時動態</a>'
-      +'<a href="https://www.flightradar24.com/data/flights/'+q.toLowerCase()+'" target="_blank" rel="noopener">Flightradar24 地圖</a>'
-      +'<a href="https://www.google.com/search?q='+q+'+flight+status" target="_blank" rel="noopener">Google 航班狀態</a></div>';
-    return h+'<p class="fl-foot">表定時間（當地時間）。實際起降、延誤、登機門請點上面的連結看即時資料。</p></div>';
+    var lf=live.fl&&(live.fl.flights||[]).filter(function(x){return x.no===f.no&&x.date.slice(5).replace(/^0/,'').replace('/0','/')===f.date})[0];
+    if(lf){
+      var late=lf.est!==lf.sched||lf.estDate!==lf.date;
+      h+='<div class="fl-live"><span class="fl-st'+(/延|取消/.test(lf.status)?' bad':'')+'">'+esc(lf.status)+'</span>'
+        +'<span>'+(lf.dir==='dep'?'桃園起飛':'抵達桃園')+' <b>'+esc(lf.est)+'</b>'+(late?' <s>'+esc(lf.sched)+'</s>':'')+'</span>'
+        +(lf.gate?'<span>第 '+esc(lf.terminal)+' 航廈 · 登機門 '+esc(lf.gate)+'</span>':'')+'</div>'
+        +'<p class="fl-foot">桃園機場即時資料（台灣時間），'+new Date(live.fl.updated).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false})+' 更新，約每 10 分鐘一次</p>';
+    }
+    h+='<div class="fl-links"><a href="https://www.google.com/search?q='+q+'+flight+status" target="_blank" rel="noopener">Google 航班狀態（含河內端）</a></div>';
+    return h+'<p class="fl-foot">上面的大字是表定時間（當地時間）。</p></div>';
   }).join('');
 }
 function viewDay(d){
