@@ -470,7 +470,8 @@ function flightCard(d){
     var q=encodeURIComponent(f.no);
     var h='<div class="fl"><div class="fl-top"><span class="fl-no">'+esc(f.no)+'</span><span class="chip">'+esc(f.leg||'班機')+' '+esc(f.date)+'</span></div>';
     h+='<div class="fl-route"><div><b>'+esc(f.dep)+'</b><small>'+esc(f.from)+'</small></div><div class="line" aria-hidden="true"></div><div style="text-align:right"><b>'+esc(f.arr)+'</b><small>'+esc(f.to)+'</small></div></div>';
-    if(state.flightNote)h+='<p class="fl-note">'+esc(state.flightNote)+'</p>';
+    var nt=state.flightNote||'',named=flightsOf(state).some(function(g){return nt.indexOf(g.no)>=0});
+    if(nt&&(!named||nt.indexOf(f.no)>=0))h+='<p class="fl-note">'+esc(state.flightNote)+'</p>';
     h+='<div class="fl-links"><a href="https://www.flightaware.com/live/flight/'+q+'" target="_blank" rel="noopener">FlightAware 即時動態</a>'
       +'<a href="https://www.flightradar24.com/data/flights/'+q.toLowerCase()+'" target="_blank" rel="noopener">Flightradar24 地圖</a>'
       +'<a href="https://www.google.com/search?q='+q+'+flight+status" target="_blank" rel="noopener">Google 航班狀態</a></div>';
