@@ -1,7 +1,9 @@
 name: Flight status
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    # Only around the return flight CI792 (11/3, 06:00-17:50 Taiwan time)
+    - cron: "*/10 22-23 2 11 *"
+    - cron: "*/10 0-9 3 11 *"
   workflow_dispatch:
 permissions:
   contents: write

@@ -484,7 +484,9 @@ function flightCard(d){
       var late=lf.est!==lf.sched||lf.estDate!==lf.date;
       h+='<div class="fl-live"><span class="fl-st'+(/延|取消/.test(lf.status)?' bad':'')+'">'+esc(lf.status)+'</span>'
         +'<span>'+(lf.dir==='dep'?'桃園起飛':'抵達桃園')+' <b>'+esc(lf.est)+'</b>'+(late?' <s>'+esc(lf.sched)+'</s>':'')+'</span>'
-        +(lf.gate?'<span>第 '+esc(lf.terminal)+' 航廈 · 登機門 '+esc(lf.gate)+'</span>':'')+'</div>'
+        +(lf.gate?'<span>第 '+esc(lf.terminal)+' 航廈 · 登機門 '+esc(lf.gate)+'</span>':'')
+        +(lf.dir==='dep'&&lf.counter?'<span>報到櫃台 '+esc(lf.counter)+'</span>':'')
+        +(lf.dir==='arr'&&lf.belt?'<span>行李轉盤 '+esc(lf.belt)+'</span>':'')+'</div>'
         +'<p class="fl-foot">桃園機場即時資料（台灣時間），'+new Date(live.fl.updated).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false})+' 更新，約每 10 分鐘一次</p>';
     }
     h+='<div class="fl-links"><a href="https://www.google.com/search?q='+q+'+flight+status" target="_blank" rel="noopener">Google 航班狀態（含河內端）</a></div>';

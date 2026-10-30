@@ -41,6 +41,7 @@ def main(path):
                         "no": f"{air}{num}", "date": date, "dir": "dep" if c[1] == "D" else "arr",
                         "gate": c[5], "sched": c[7][:5], "estDate": c[8], "est": c[9][:5],
                         "status": re.sub(r"[A-Z ]+$", "", c[13]).strip() or c[13], "terminal": c[0],
+                        "belt": c[18] if len(c) > 18 else "", "counter": c[19] if len(c) > 19 else "",
                     })
     old = None
     try:
